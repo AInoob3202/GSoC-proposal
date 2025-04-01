@@ -65,8 +65,10 @@ proposal will be implemented, this is the place to discuss them.
 [ ] I/we understand the owners of the involved components may require updates to
 existing tests to make this code solid enough prior to committing the changes necessary
 to implement this enhancement.
+
 [ ] We firstly ensure that every modules in DeepChem are fully upgraded, and then check the f
-unctions of core APIs and calculators and if there exists silent errors .
+unctions of core APIs and calculators and if there exists silent errors.
+
 [ ] Test that if new method can boost or optimize the efficiency of calculating. If there exists
 some optimization, we wish to finish.
 
