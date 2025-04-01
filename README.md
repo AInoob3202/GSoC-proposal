@@ -1,4 +1,4 @@
-# Boosting Taxon Classification with DNN and BERT
+# Better NumPy 2.0 Upgrade to DeepChem
 
 <!--
 This is the title of your KEP. Keep it short, simple, and descriptive. A good
@@ -7,14 +7,11 @@ any review.
 -->
 
 ## Summary
-  We try to solve the problem of computational cost and slowly classification by using 
-neural network and NLP model such as BERT. A more detailed description is that we could
-pre-train a model to pre-treat the dataset and get more simplified features, then we could 
-make input more precise let random-forest to do classification with more efficiency.
-  The existing problem is that the random-forest classifier can make much computational 
-cost. It is very hard to deploy it cloud-native when facing various and huge dataset.
-  Noticed that we can use pretreatment to make it better:
-  1.Use DNN to learn
+The migration of DeepChem from NumPy <2.0 to 2.0 may results in many compatibility problem.
+We are concerned to resolve API incompatibilities, refactor deprecated patterns, optimize 
+numerical computation performance, fix little syntax bugs and support third-party 
+dependency coordination. 
+
 <!--
 This section is incredibly important for producing high-quality, user-focused
 documentation such as release notes or a development roadmap. It should be
@@ -31,7 +28,11 @@ updates.
 -->
 
 ## Motivation
-  The motivation for this proposal is that 
+- **Stability:** Latest version of NumPy is not stable enough, which needs us to fix
+- **Better Performance:** Abandon inefficient approaches and use new features of NumPy 2.0 to do better 
+- **Ecosystem:** PyTorch/TensorFlow 2.x now require NumPy 2.0 compatibility
+- **Security:** Critical vulnerabilities in older NumPy versions (CVE-2023-52425)
+- **Support on GPU:** New features accelerate GPU efficiency that we must focus on
 <!--
 This section is for explicitly listing the motivation, goals, and non-goals of
 this KEP. Describe why the change is important and the benefits to users. The
@@ -41,14 +42,19 @@ demonstrate the interest in a KEP within the wider Kubeflow community.
 -->
 
 ### Goals
-  I try to optimize the exising classifier at least 10% more
+- Core API migration(considering both removals and new features)
+- Performance optimization, e.g., using np.block(≥1.8x speedup verified)
+- Global transfer(make all essential calculation modules 0% loss)
+- Zero silent errors in type conversions
 <!--
 List the specific goals of the KEP. What is it trying to achieve? How will we
 know that this has succeeded?
 -->
 
 ### Non-Goals
-
+- Backport NumPy 2.0 features to older versions
+- Optimize non-core computational pathways
+- Support EOL NumPy versions (<1.21)
 <!--
 What is out of scope for this KEP? Listing non-goals helps to focus discussion
 and make progress.
@@ -63,28 +69,6 @@ you're proposing, but should not include things like API designs or
 implementation. What is the desired outcome and how do we measure success?.
 The "Design Details" section below is for the real
 nitty-gritty.
--->
-
-### User Stories (Optional)
-
-<!--
-Detail the things that people will be able to do if this KEP is implemented.
-Include as much detail as possible so that people can understand the "how" of
-the system. The goal here is to make this feel real for users without getting
-bogged down.
--->
-
-#### Story 1
-
-#### Story 2
-
-### Notes/Constraints/Caveats (Optional)
-
-<!--
-What are the caveats to the proposal?
-What are some important details that didn't come across above?
-Go in to as much detail as necessary here.
-This might be a good place to talk about core concepts and how they relate.
 -->
 
 ### Risks and Mitigations
@@ -177,29 +161,6 @@ milestones with these graduation criteria:
 [maturity-levels]: https://git.k8s.io/community/contributors/devel/sig-architecture/api_changes.md#alpha-beta-and-stable-versions
 [deprecation-policy]: https://kubernetes.io/docs/reference/using-api/deprecation-policy/
 -->
-
-## Implementation History
-
-<!--
-Major milestones in the lifecycle of a KEP should be tracked in this section.
-Major milestones might include:
-- KEP Creation
-- KEP Update(s)
-- Implementation Start
-- First Component and Kubeflow version where the KEP is released
-- Component and Kubeflow version where the KEP is graduated
-- When the KEP was retired or superseded
--->
-
-## Drawbacks
-
-<!--
-Why should this KEP _not_ be implemented?
--->
-
-## Alternatives
-
-<!--
 What other approaches did you consider, and why did you rule them out? These do
 not need to be as detailed as the proposal, but should include enough
 information to express the idea and why it was not acceptable.
