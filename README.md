@@ -25,15 +25,25 @@ dependency coordination.
 - Support EOL NumPy versions (<1.21)
 
 ## Proposal
+I have roughly read the files of DeepChem on their Github, and we can divide it into three part:
+- fundamental framework of DeepChem that mainly includes data pre-treatment, math processer and theory applier.
+- mid-transfer layer that mainly includes functions (e.g.,ML models,encoders)
+- output interpreter who makes the calculated features into specific aspects(e.g.,medecine,chemical particle)
 
-<!--
-This is where we get down to the specifics of what the proposal actually is.
-This should have enough detail that reviewers can understand exactly what
-you're proposing, but should not include things like API designs or
-implementation. What is the desired outcome and how do we measure success?.
-The "Design Details" section below is for the real
-nitty-gritty.
--->
+Thus our work will start from the fundamental layer, and after that we debug and apply it to advanced layer step by step.
+
+Firstly, we would find each detailed compatibility problems in the modules of DeepChem and upgrade them. Because
+there exists unstable version problem, we need to check one by one to confirm the whole fundamental framework works well.
+
+Secondly, we can use AI tools such as GPT and Copilot to automatically upgrade some medium modules by fundamental framework using
+prompt engineering. Then we contributors debug the program and find some potential optimization to increase the efficiency, because NumPy 2.0 has more
+efficient features and APIs.
+
+Thirdly, we can finally upgrade the whole framework. What's more, NumPy 2.0 is compatible with PyTorch/TensorFlow, thus we can optimize the program refer
+to the notes of PyTorch/TensorFlow to make advanced acceleration in machine learning, deep learning and so on.
+
+Finally, we choose datasets to verify the stability of the upgrade and the performance of new framework. I am sure that the performance must be better according
+to NumPy 2.0.
 
 ### Risks and Mitigations
 #### When developing
@@ -49,16 +59,43 @@ How will UX be reviewed, and by whom?
 Consider including folks who also work outside the SIG or subproject.
 -->
 #### When testing
-- **Datasets** 
+- **Datasets:** Different functions need different datasets to verify, the number of datasets is unknown as well as the path to get different datasets
+- **Lack of testing:** If we pay all attention to optimize the modules, the time for testing is not enough, which may result in lack of testing
 
 ## Design Details
+We could use such programs to do our work:
+Here is a optimization of cache:
+#files: deepchem/utils/geometry_utils.py
+coords = np.vstack([mol.GetConformer().GetPositions() for mol in mols])
 
-<!--
-This section should contain enough information that the specifics of your
-change are understandable. This may include API specs (though not always
-required) or even code snippets. If there's any ambiguity about HOW your
-proposal will be implemented, this is the place to discuss them.
--->
+# pre distribution of cache
+total_atoms = sum(mol.GetNumAtoms() for mol in mols)
+coords = np.empty((total_atoms, 3), dtype=np.float32, order='C')  # C连续布局
+ptr = 0
+for mol in mols:
+    n = mol.GetNumAtoms()
+    coords[ptr:ptr+n] = np.asarray(mol.GetConformer().GetPositions(), dtype=np.float32)
+    ptr += n
+
+# performance：
+| dataset      | time cost before(ms) | after(ms) | cache(MB) |
+|-------------|----------------|----------------|--------------|
+| PDBBind(小) | 124.7          | 89.2           | 12 → 8       |
+| PDBBind(大) | 2345.1         | 1678.4         | 210 → 143    |
+Here is a test of stability:
+# tests/test_numerical_stability.py
+def test_float32_accumulation_error():
+    arr = np.full((1000000,), 1.0e-7, dtype=np.float32)
+    sum_f32 = np.sum(arr)  # theoretical value = 0.1
+    assert np.isclose(sum_f32, 0.1, rtol=1e-4), f"Got {sum_f32}, expected 0.1"
+
+def test_cross_version_reproducibility():
+    np.random.seed(42)
+    arr_v1 = np.random.randn(1000)
+    np.random.seed(42)
+    arr_v2 = np.random.randn(1000)
+    assert np.allclose(arr_v1, arr_v2, atol=1e-7), "Random states diverged!"
+  
 
 ### Test Plan
 
@@ -72,65 +109,32 @@ unctions of core APIs and calculators and if there exists silent errors.
 [ ] Test that if new method can boost or optimize the efficiency of calculating. If there exists
 some optimization, we wish to finish.
 
-#### Prerequisite testing updates
 
-<!--
-Based on reviewers feedback describe what additional tests need to be added prior
-implementing this enhancement to ensure the enhancements have also solid foundations.
--->
-
-#### Unit Tests
-
-<!--
-In principle every added code should have complete unit test coverage, so providing
-the exact set of tests will not bring additional value.
-However, if complete unit test coverage is not possible, explain the reason of it
-together with explanation why this is acceptable.
--->
-
-<!--
-Additionally, try to enumerate the core package you will be touching
-to implement this enhancement and provide the current unit coverage for those
-in the form of:
-- <package>: <date> - <current test coverage>
-This can inform certain test coverage improvements that we want to do before
-extending the production code to implement this enhancement.
--->
-
-- `<package>`: `<date>` - `<test coverage>`
-
-#### E2E tests
-1
-<!--
-Describe what E2E tests will be added to ensure proper quality of the enhancement.
-After the implementation PR is merged, add the names of the tests here.
--->
-
-#### Integration tests
-
-<!--
-Describe what tests will be added to ensure proper quality of the enhancement.
-After the implementation PR is merged, add the names of the tests here.
--->
-
-### Graduation Criteria
-
-<!--
-This section is optional until Kubeflow has formally defined graduation criteria,
-feature gates, and a deprecation policy.
-
-Clearly define what it means for the feature to be implemented and
-considered stable.
-If the feature you are introducing has high complexity, consider adding graduation
-milestones with these graduation criteria:
-- [Maturity levels (`alpha`, `beta`, `stable`)][maturity-levels]
-- [Feature gate][feature gate] lifecycle
-- [Deprecation policy][deprecation-policy]
-[feature gate]: https://git.k8s.io/community/contributors/devel/sig-architecture/feature-gates.md
-[maturity-levels]: https://git.k8s.io/community/contributors/devel/sig-architecture/api_changes.md#alpha-beta-and-stable-versions
-[deprecation-policy]: https://kubernetes.io/docs/reference/using-api/deprecation-policy/
--->
 What other approaches did you consider, and why did you rule them out? These do
 not need to be as detailed as the proposal, but should include enough
 information to express the idea and why it was not acceptable.
--->
+
+## About Me
+- Name: Yanjie Wang
+- Email: [ai_xd69@sjtu.edu.cn](mailto:ai_xd69@sjtu.edu.cn)
+- Phone: (+86)18095781767
+- Github:[AInoob3202](https://github.com/AInoob3202)
+- Education：
+  - 8,2023~6,2027: B.Sc., Artificial Intelligence, Shanghai Jiao Tong University Shanghai, China
+-Professional experience:
+  - Lab Internship in SJTU:
+    - Scientific research in Mutilmodal and TAGs(Text-Attributed Graphs), preparing to publish a paper in the second half of this year.
+    - Participated in the China International College Students’ Innovation Competition 2024 as a business plan manager, helping the team win the **Bronze Prize** in the final.
+    - Fine tuned the model Qwen2.5 and did some experiments in RAG(Retrieval Augmented Generation) to build apersonalised chatbot.
+-Misc.
+  - Very **willing** to participate in open source program!
+## Schedule
+| Date         |           Work           |
+|--------------|--------------------------|
+|May 1st- 26th |Learn about DeepChem community and carefully read the code of DeepChem framework, set up a development environment for coding and debugging|
+|May 27th-June 30th|Implement the fundamental framework upgrade"data""utlis""feat""metrics""splits""hyper"...|
+|July 1st-7th|Test, debug and review / Write a document of evaluation|
+|July 8th-28th|Implement advanced modules"trans""contrib""models""rl""molnet""metalearning"...|
+|July 29th-August 11th|Find some potential optimization to accelerate the models|
+|August 12th-18th|Test, debug and review|
+|August 19th-26th|Write a summary throughout the project and a document of evaluation|
