@@ -98,7 +98,7 @@ extending the production code to implement this enhancement.
 - `<package>`: `<date>` - `<test coverage>`
 
 #### E2E tests
-
+1
 <!--
 Describe what E2E tests will be added to ensure proper quality of the enhancement.
 After the implementation PR is merged, add the names of the tests here.
