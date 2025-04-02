@@ -62,28 +62,31 @@ Consider including folks who also work outside the SIG or subproject.
 - **Datasets:** Different functions need different datasets to verify, the number of datasets is unknown as well as the path to get different datasets
 - **Lack of testing:** If we pay all attention to optimize the modules, the time for testing is not enough, which may result in lack of testing
 
-## Design Details
+### Design Details
 We could use such programs to do our work:
+
 Here is a optimization of cache:
+
 #files: deepchem/utils/geometry_utils.py
 coords = np.vstack([mol.GetConformer().GetPositions() for mol in mols])
-
-# pre distribution of cache
+#pre distribution of cache
 total_atoms = sum(mol.GetNumAtoms() for mol in mols)
-coords = np.empty((total_atoms, 3), dtype=np.float32, order='C')  # C连续布局
+
+coords = np.empty((total_atoms, 3), dtype=np.float32, order='C')  # 
 ptr = 0
 for mol in mols:
     n = mol.GetNumAtoms()
     coords[ptr:ptr+n] = np.asarray(mol.GetConformer().GetPositions(), dtype=np.float32)
     ptr += n
 
-# performance：
+#performance：
 | dataset      | time cost before(ms) | after(ms) | cache(MB) |
 |-------------|----------------|----------------|--------------|
 | PDBBind(小) | 124.7          | 89.2           | 12 → 8       |
 | PDBBind(大) | 2345.1         | 1678.4         | 210 → 143    |
+
 Here is a test of stability:
-# tests/test_numerical_stability.py
+#tests/test_numerical_stability.py
 def test_float32_accumulation_error():
     arr = np.full((1000000,), 1.0e-7, dtype=np.float32)
     sum_f32 = np.sum(arr)  # theoretical value = 0.1
@@ -130,7 +133,7 @@ information to express the idea and why it was not acceptable.
   - Very **willing** to participate in open source program!
 ## Schedule
 | Date         |           Work           |
-|--------------|--------------------------|
+|-------------------------------------|--------------------------|
 |May 1st- 26th |Learn about DeepChem community and carefully read the code of DeepChem framework, set up a development environment for coding and debugging|
 |May 27th-June 30th|Implement the fundamental framework upgrade"data""utlis""feat""metrics""splits""hyper"...|
 |July 1st-7th|Test, debug and review / Write a document of evaluation|
