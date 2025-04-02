@@ -68,15 +68,23 @@ We could use such programs to do our work:
 Here is a optimization of cache:
 
 #files: deepchem/utils/geometry_utils.py
+
 coords = np.vstack([mol.GetConformer().GetPositions() for mol in mols])
+
 #pre distribution of cache
+
 total_atoms = sum(mol.GetNumAtoms() for mol in mols)
 
-coords = np.empty((total_atoms, 3), dtype=np.float32, order='C')  # 
+coords = np.empty((total_atoms, 3), dtype=np.float32, order='C') 
+
 ptr = 0
+
 for mol in mols:
+
     n = mol.GetNumAtoms()
+    
     coords[ptr:ptr+n] = np.asarray(mol.GetConformer().GetPositions(), dtype=np.float32)
+    
     ptr += n
 
 #performance：
@@ -86,18 +94,29 @@ for mol in mols:
 | PDBBind(大) | 2345.1         | 1678.4         | 210 → 143    |
 
 Here is a test of stability:
+
 #tests/test_numerical_stability.py
+
 def test_float32_accumulation_error():
+
     arr = np.full((1000000,), 1.0e-7, dtype=np.float32)
+    
     sum_f32 = np.sum(arr)  # theoretical value = 0.1
+    
     assert np.isclose(sum_f32, 0.1, rtol=1e-4), f"Got {sum_f32}, expected 0.1"
 
 def test_cross_version_reproducibility():
+
     np.random.seed(42)
+    
     arr_v1 = np.random.randn(1000)
+    
     np.random.seed(42)
+    
     arr_v2 = np.random.randn(1000)
+    
     assert np.allclose(arr_v1, arr_v2, atol=1e-7), "Random states diverged!"
+    
   
 
 ### Test Plan
@@ -112,11 +131,6 @@ unctions of core APIs and calculators and if there exists silent errors.
 [ ] Test that if new method can boost or optimize the efficiency of calculating. If there exists
 some optimization, we wish to finish.
 
-
-What other approaches did you consider, and why did you rule them out? These do
-not need to be as detailed as the proposal, but should include enough
-information to express the idea and why it was not acceptable.
-
 ## About Me
 - Name: Yanjie Wang
 - Email: [ai_xd69@sjtu.edu.cn](mailto:ai_xd69@sjtu.edu.cn)
@@ -124,16 +138,16 @@ information to express the idea and why it was not acceptable.
 - Github:[AInoob3202](https://github.com/AInoob3202)
 - Education：
   - 8,2023~6,2027: B.Sc., Artificial Intelligence, Shanghai Jiao Tong University Shanghai, China
--Professional experience:
+- Professional experience:
   - Lab Internship in SJTU:
     - Scientific research in Mutilmodal and TAGs(Text-Attributed Graphs), preparing to publish a paper in the second half of this year.
     - Participated in the China International College Students’ Innovation Competition 2024 as a business plan manager, helping the team win the **Bronze Prize** in the final.
     - Fine tuned the model Qwen2.5 and did some experiments in RAG(Retrieval Augmented Generation) to build apersonalised chatbot.
--Misc.
+- Misc.
   - Very **willing** to participate in open source program!
 ## Schedule
-| Date         |           Work           |
-|-------------------------------------|--------------------------|
+| Date                                      |           Work                           |
+|-------------------------------------------|------------------------------------------|
 |May 1st- 26th |Learn about DeepChem community and carefully read the code of DeepChem framework, set up a development environment for coding and debugging|
 |May 27th-June 30th|Implement the fundamental framework upgrade"data""utlis""feat""metrics""splits""hyper"...|
 |July 1st-7th|Test, debug and review / Write a document of evaluation|
