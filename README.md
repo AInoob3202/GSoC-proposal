@@ -50,14 +50,7 @@ to NumPy 2.0.
 - **Implicit *dtype=object* failures:** Add context-aware *try-except* blocks
 - **C extension segfaults:** Valgrind + GDB stack tracing
 - **Third-party version locks:** Build dynamic version sniffers (e.g., tensorflow-numpy-adapter)
-<!--
-What are the risks of this proposal, and how do we mitigate? Think broadly.
-For example, consider both security and how this will impact the larger
-Kubeflow ecosystem.
-How will security be reviewed, and by whom?
-How will UX be reviewed, and by whom?
-Consider including folks who also work outside the SIG or subproject.
--->
+
 #### When testing
 - **Datasets:** Different functions need different datasets to verify, the number of datasets is unknown as well as the path to get different datasets
 - **Lack of testing:** If we pay all attention to optimize the modules, the time for testing is not enough, which may result in lack of testing
@@ -67,25 +60,16 @@ We could use such programs to do our work:
 
 Here is a optimization of cache:
 
-#files: deepchem/utils/geometry_utils.py
-
-coords = np.vstack([mol.GetConformer().GetPositions() for mol in mols])
-
-#pre distribution of cache
-
-total_atoms = sum(mol.GetNumAtoms() for mol in mols)
-
-coords = np.empty((total_atoms, 3), dtype=np.float32, order='C') 
-
-ptr = 0
-
-for mol in mols:
-
-    n = mol.GetNumAtoms()
-    
-    coords[ptr:ptr+n] = np.asarray(mol.GetConformer().GetPositions(), dtype=np.float32)
-    
-    ptr += n
+    #files: deepchem/utils/geometry_utils.py
+    coords = np.vstack([mol.GetConformer().GetPositions() for mol in mols])
+    #pre distribution of cache
+    total_atoms = sum(mol.GetNumAtoms() for mol in mols)
+    coords = np.empty((total_atoms, 3), dtype=np.float32, order='C') 
+    ptr = 0
+    for mol in mols:
+        n = mol.GetNumAtoms()
+        coords[ptr:ptr+n] = np.asarray(mol.GetConformer().GetPositions(), dtype=np.float32)
+        ptr += n
 
 #performance：
 | dataset      | time cost before(ms) | after(ms) | cache(MB) |
@@ -95,30 +79,18 @@ for mol in mols:
 
 Here is a test of stability:
 
-#tests/test_numerical_stability.py
-
-def test_float32_accumulation_error():
-
-    arr = np.full((1000000,), 1.0e-7, dtype=np.float32)
-    
-    sum_f32 = np.sum(arr)  # theoretical value = 0.1
-    
-    assert np.isclose(sum_f32, 0.1, rtol=1e-4), f"Got {sum_f32}, expected 0.1"
-
-def test_cross_version_reproducibility():
-
-    np.random.seed(42)
-    
-    arr_v1 = np.random.randn(1000)
-    
-    np.random.seed(42)
-    
-    arr_v2 = np.random.randn(1000)
-    
-    assert np.allclose(arr_v1, arr_v2, atol=1e-7), "Random states diverged!"
-    
-  
-
+    #tests/test_numerical_stability.py
+    def test_float32_accumulation_error():
+        arr = np.full((1000000,), 1.0e-7, dtype=np.float32)
+        sum_f32 = np.sum(arr)  # theoretical value = 0.1
+        assert np.isclose(sum_f32, 0.1, rtol=1e-4), f"Got {sum_f32}, expected 0.1"
+    def test_cross_version_reproducibility():
+        np.random.seed(42)
+        arr_v1 = np.random.randn(1000)
+        np.random.seed(42)
+        arr_v2 = np.random.randn(1000)
+        assert np.allclose(arr_v1, arr_v2, atol=1e-7), "Random states diverged!"
+        
 ### Test Plan
 
 [ ] I/we understand the owners of the involved components may require updates to
