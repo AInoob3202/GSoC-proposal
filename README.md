@@ -11,7 +11,7 @@ dependency coordination.
 - **Better Performance:** Abandon inefficient approaches and use new features of NumPy 2.0 to do better 
 - **Ecosystem:** PyTorch/TensorFlow 2.x now require NumPy 2.0 compatibility
 - **Security:** Critical vulnerabilities in older NumPy versions (CVE-2023-52425)
-- **Support on GPU:** New features accelerate GPU efficiency that we must focus on
+- **Support on GPU:** New features increase GPU efficiency that we must focus on
 
 ### Goals
 - Core API migration(considering both removals and new features)
@@ -26,9 +26,9 @@ dependency coordination.
 
 ## Proposal
 I have roughly read the files of DeepChem on their Github, and we can divide it into three part:
-- fundamental framework of DeepChem that mainly includes data pre-treatment, math processer and theory applier.
+- fundamental framework of DeepChem that mainly includes data pre-treatment, math processor and theory applier.
 - mid-transfer layer that mainly includes functions (e.g.,ML models,encoders)
-- output interpreter who makes the calculated features into specific aspects(e.g.,medecine,chemical particle)
+- output interpreter who makes the calculated features into specific aspects(e.g.,medicine,chemical particle)
 
 Thus our work will start from the fundamental layer, and after that we debug and apply it to advanced layer step by step.
 
@@ -112,9 +112,9 @@ some optimization, we wish to finish.
   - 8,2023~6,2027: B.Sc., Artificial Intelligence, Shanghai Jiao Tong University Shanghai, China
 - Professional experience:
   - Lab Internship in SJTU:
-    - Scientific research in Mutilmodal and TAGs(Text-Attributed Graphs), preparing to publish a paper in the second half of this year.
-    - Participated in the China International College Students’ Innovation Competition 2024 as a business plan manager, helping the team win the **Bronze Prize** in the final.
-    - Fine tuned the model Qwen2.5 and did some experiments in RAG(Retrieval Augmented Generation) to build apersonalised chatbot.
+    - Scientific research in Mutilmodal and TAGs(Text-Attributed Graphs), preparing to publish a paper in the second half of this year
+    - Participated in the China International College Students’ Innovation Competition 2024 as a business plan manager, helping the team win the **Bronze Prize** in the final
+    - Fine tuned the model Qwen2.5 and did some experiments in RAG(Retrieval Augmented Generation) to build a personalised chatbot
 - Misc.
   - Very **willing** to participate in open source program!
 ## Schedule
